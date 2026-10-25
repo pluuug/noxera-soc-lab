@@ -15,11 +15,14 @@ A hands-on cybersecurity portfolio project focused on analyzing authentication l
 
 ## ⚙️ Technologies
 
-
-
-\
-
-
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux" />
+  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
+  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
+  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON" />
+  <img src="https://img.shields.io/badge/MITRE_ATT%26CK-E34F26?style=for-the-badge&logoColor=white" alt="MITRE ATT&CK" />
+</p>
 ## 🔍 Detection Rules
 
 | Rule ID    | Detection                                          | Severity           |
