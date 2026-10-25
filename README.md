@@ -1,96 +1,57 @@
-# 🛡️ NØXERA SOC Lab
+# NØXERA SOC Lab
 
-**Security Operations · Detection Engineering · Incident Response**
+A defensive security portfolio project demonstrating entry-level SOC workflows: log review, alert triage, detection logic, and incident documentation.
 
-A hands-on cybersecurity portfolio project focused on analyzing authentication logs, detecting suspicious login activity, investigating alerts, and documenting incident response workflows.
+> **Lab only:** The included logs are synthetic examples. This project does not scan networks, access accounts, or perform offensive actions.
 
-## 🎯 Project Objectives
+## What it does
 
-- Analyze Linux SSH authentication logs using Python.
-- Detect repeated failed login attempts.
-- Identify successful logins from sources associated with repeated failures.
-- Generate structured JSON alerts for investigation.
-- Document detection rules and map them to MITRE ATT&CK.
-- Practice SOC alert triage and incident reporting.
+- Parses Linux-style SSH authentication log entries.
+- Flags source IPs with repeated failed SSH logins.
+- Highlights a successful login from an IP that also had repeated failures in the same log window.
+- Writes findings to a JSON report for review.
+- Documents detection logic and a repeatable analyst workflow.
 
-## ⚙️ Technologies
+## Requirements
 
-<p align="left">
-  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
-  <img src="https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black" alt="Linux" />
-  <img src="https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white" alt="Git" />
-  <img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub" />
-  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON" />
-  <img src="https://img.shields.io/badge/MITRE_ATT%26CK-E34F26?style=for-the-badge&logoColor=white" alt="MITRE ATT&CK" />
-</p>
-## 🔍 Detection Rules
+- Python 3.10+
+- No third-party packages required
 
-| Rule ID    | Detection                                          | Severity           |
-| ---------- | -------------------------------------------------- | ------------------ |
-| NX-SOC-001 | Repeated SSH authentication failures               | Medium             |
-| NX-SOC-002 | Successful login from an IP with repeated failures | High — investigate |
+## Run it
 
-Severity is illustrative and should be validated against the environment and supporting evidence.
-
-## 🚀 Getting Started
-
-### Requirements
-
-- Python 3.10 or newer
-- No third-party Python packages required
-
-### Run the analyzer
+From this folder:
 
 ```bash
 python src/analyze_auth_logs.py --input data/auth.log --output reports/alerts.json --threshold 5
 ```
 
-The analyzer processes the supplied sample log file and writes its findings to `reports/alerts.json`.
+Then open `reports/alerts.json` to review the alerts.
 
-## 🧪 Investigation Workflow
+## Example investigation workflow
 
-1. Validate the alert and examine the supporting log events.
-2. Identify the source IP, targeted accounts, and relevant time range.
-3. Correlate failed and successful authentication events.
-4. Consider benign explanations and assess potential impact.
-5. Document findings, confidence, and recommended next steps.
-6. Escalate according to the applicable incident-response process.
+1. **Validate the alert:** Check the time range, source IP, and event counts.
+2. **Establish scope:** Determine which account(s) and host(s) appear in the logs.
+3. **Correlate events:** Look for a successful login following repeated failures.
+4. **Assess severity:** Consider whether the account is privileged and whether activity is expected.
+5. **Recommend response:** Follow the organization's process; examples include validating with the user, reviewing related logs, and resetting credentials if compromise is confirmed.
+6. **Document:** Record evidence, confidence, impact, and next steps.
 
-## 📁 Repository Structure
+## Portfolio roadmap
 
-```text
-noxera-soc-lab/
-├── data/
-│   └── auth.log
-├── detections/
-│   ├── NX-SOC-001-repeated-ssh-failures.md
-│   └── NX-SOC-002-failure-then-success.md
-├── reports/
-│   ├── incident-report-template.md
-│   └── sample-alerts.json
-├── src/
-│   └── analyze_auth_logs.py
-├── .gitignore
-└── README.md
-```
-
-## 🗺️ Roadmap
-
-- [x] Authentication log analysis
-- [x] Basic SSH detection rules
-- [x] JSON alert reporting
+- [x] Synthetic authentication log dataset
+- [x] Python detection script
+- [x] JSON alert output
+- [x] Detection rule documentation
 - [x] Incident report template
-- [x] Unit tests and additional synthetic test cases
-- [x] Improved timestamp correlation and time-window detection
-- [x] Windows event log analysis
-- [x] SIEM integration and dashboard
+- [ ] Add unit tests
+- [ ] Add Windows Event Log sample parser
+- [ ] Add a small dashboard
+- [ ] Test detections against additional synthetic scenarios
 
-## ⚠️ Scope and Limitations
+## Limitations
 
-This project uses synthetic sample logs for defensive learning. An alert is an investigative lead, not proof of compromise. The current analyzer counts events across the supplied file and has limitations in timestamp correlation; it is not a production SIEM.
+This is a learning project, not a production SIEM. It analyzes a small sample file and does not establish that an event is malicious by itself. Thresholds should be tuned to the environment, and alerts require human investigation.
 
-## 👨‍💻 About
+## Skills demonstrated
 
-This project is part of my ongoing development in cybersecurity, SOC operations, Python automation, and defensive security analysis.
-
-*Learn. Analyze. Detect. Investigate.*
+Python · Log Analysis · Detection Engineering · Alert Triage · Incident Documentation · MITRE ATT&CK mapping
