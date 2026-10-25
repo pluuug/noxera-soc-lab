@@ -103,3 +103,27 @@ Python scripting · Authentication log analysis · Detection engineering · JSON
 - [ ] Add more synthetic scenarios and regression tests
 - [ ] Add a small local dashboard
 - [ ] Improve timestamp handling for historical logs and year boundaries
+
+## Run the SOC Dashboard
+
+### Install dependencies
+
+``powershell
+& "$env:LocalAppData\Programs\Python\Python314\python.exe" -m pip install -r requirements.txt
+``
+
+### Generate alerts
+
+``powershell
+& "$env:LocalAppData\Programs\Python\Python314\python.exe" src\analyze_auth_logs.py --input data\auth.log --output reports\alerts.json --threshold 5 --window-minutes 10
+``
+
+### Launch the dashboard
+
+``powershell
+& "$env:LocalAppData\Programs\Python\Python314\python.exe" -m streamlit run app.py
+``
+
+Open http://localhost:8501 in your browser. Press Ctrl+C in the terminal to stop the dashboard.
+
+This project uses synthetic authentication logs for defensive security learning. Alerts are investigation leads, not proof of compromise.
