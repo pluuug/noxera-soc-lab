@@ -26,3 +26,6 @@ Thumbs.db
 *.pre_timestamp_fix.py
 README.backup.md
 .gitignore.backup
+
+app.py.backup
+reports/triage_demo.json

@@ -8,13 +8,13 @@ BASE_DIR = Path(__file__).resolve().parent
 REPORT_PATH = BASE_DIR / "reports" / "alerts.json"
 
 st.set_page_config(
-    page_title="NÃ˜XERA SOC | Command Center",
-    page_icon="ðŸ›¡ï¸",
+    page_title="N\u00d8XERA SOC | Command Center",
+    page_icon="\U0001F6E1",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# NÃ˜XERA dark command-center styling
+# N\u00d8XERA dark command-center styling
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -151,15 +151,15 @@ def load_report():
 
 def text_value(value):
     if value is None:
-        return "â€”"
+        return "\u2014"
     if isinstance(value, (list, tuple, set)):
-        return ", ".join(str(item) for item in value) or "â€”"
+        return ", ".join(str(item) for item in value) or "\u2014"
     if isinstance(value, dict):
         return json.dumps(value, ensure_ascii=False)
     return str(value)
 
 
-def alert_value(alert, *keys, default="â€”"):
+def alert_value(alert, *keys, default="\u2014"):
     for key in keys:
         value = alert.get(key)
         if value is not None and value != "":
@@ -225,26 +225,26 @@ alerts = [item for item in report.get("alerts", []) if isinstance(item, dict)]
 with st.sidebar:
     st.markdown(
         '<div class="soc-brand"><div class="soc-mark">N</div><div>'
-        '<div class="soc-brand-name">NÃ˜XERA</div>'
+        '<div class="soc-brand-name">N\u00d8XERA</div>'
         '<div class="soc-brand-sub">SECURITY OPERATIONS</div></div></div>',
         unsafe_allow_html=True,
     )
     st.divider()
     st.markdown('<div class="eyebrow">WORKSPACE</div>', unsafe_allow_html=True)
-    st.markdown("**â—ˆ  Command overview**")
-    st.markdown("**âŒ  Alert explorer**")
-    st.markdown("**â—Ž  Investigation queue**")
-    st.markdown("**âŒ˜  Detection rules**")
+    st.markdown("**\u25c8  Command overview**")
+    st.markdown("**\u2315  Alert explorer**")
+    st.markdown("**\u25ce  Investigation queue**")
+    st.markdown("**\u2318  Detection rules**")
     st.divider()
     st.markdown('<div class="eyebrow">DATA PIPELINE</div>', unsafe_allow_html=True)
     st.caption("LOCAL REPORT")
     st.code("reports/alerts.json", language="text")
-    if st.button("â†»  Refresh report", width="stretch"):
+    if st.button("\u21bb  Refresh report", width="stretch"):
         st.rerun()
     st.caption("Environment")
     st.markdown("`LOCAL / SYNTHETIC DATA`")
     st.divider()
-    st.caption("NÃ˜XERA SOC LAB Â· BUILD 01")
+    st.caption("N\u00d8XERA SOC LAB \u00b7 BUILD 01")
 
 st.markdown(
     '<div class="hero-panel"><div class="eyebrow">SECURITY OPERATIONS CENTER / 001</div>'
@@ -275,7 +275,7 @@ source_ips = {source_of(a) for a in alerts if source_of(a) != "Unknown"}
 event_count = report.get("input_event_count", report.get("total_events", report.get("event_count")))
 if event_count is None:
     summary = report.get("summary", {})
-    event_count = summary.get("input_event_count", "â€”") if isinstance(summary, dict) else "â€”"
+    event_count = summary.get("input_event_count", "\u2014") if isinstance(summary, dict) else "\u2014"
 
 m1, m2, m3, m4 = st.columns(4)
 m1.metric("Total detections", len(alerts), help="Total alerts in the current report")
@@ -307,7 +307,7 @@ with chart_right:
         rule_counts = {}
         for alert in alerts:
             rule_id = rule_of(alert)
-            label = f"{rule_id} Â· {rule_name(rule_id)}"
+            label = f"{rule_id} \u00b7 {rule_name(rule_id)}"
             rule_counts[label] = rule_counts.get(label, 0) + 1
         rule_df = pd.DataFrame([{"Detection rule": k, "Alerts": v} for k, v in rule_counts.items()])
         st.bar_chart(rule_df.set_index("Detection rule"), height=245)
@@ -359,7 +359,7 @@ if filtered:
             "Rule": rule_of(alert),
             "Detection": title_of(alert),
             "Source IP": source_of(alert),
-            "Account": text_value(alert_value(alert, "account", "username", "user", default="â€”")),
+            "Account": text_value(alert_value(alert, "account", "username", "user", default="\u2014")),
             "Timestamp": text_value(alert_value(alert, "timestamp", "time", "first_seen")),
         })
     st.dataframe(pd.DataFrame(table_rows), width="stretch", hide_index=True)
@@ -368,7 +368,7 @@ if filtered:
     for index, alert in enumerate(filtered, start=1):
         sev = severity_of(alert)
         color = severity_color(sev)
-        heading = f"{sev.upper()}  Â·  {rule_of(alert)}  Â·  {title_of(alert)}"
+        heading = f"{sev.upper()}  \u00b7  {rule_of(alert)}  \u00b7  {title_of(alert)}"
         with st.expander(heading, expanded=(len(filtered) == 1)):
             st.markdown(
                 f'<div style="display:inline-block;border:1px solid {color};color:{color};'
@@ -382,7 +382,7 @@ if filtered:
                 st.markdown("##### Finding details")
                 st.write("**Timestamp:**", text_value(alert_value(alert, "timestamp", "time", "first_seen")))
                 st.write("**Source IP:**", source_of(alert))
-                st.write("**Detection rule:**", f"{rule_of(alert)} Â· {rule_name(rule_of(alert))}")
+                st.write("**Detection rule:**", f"{rule_of(alert)} \u00b7 {rule_name(rule_of(alert))}")
                 st.write("**Severity:**", sev.title())
             with d2:
                 st.markdown("##### Accounts and targets")
@@ -428,7 +428,7 @@ st.divider()
 st.markdown(
     '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;'
     'color:#718096;font: .68rem DM Mono,monospace;letter-spacing:.06em">'
-    '<span>NÃ˜XERA SOC LAB Â· LOCAL ANALYSIS ONLY</span>'
+    '<span>N\u00d8XERA SOC LAB \u00b7 LOCAL ANALYSIS ONLY</span>'
     '<span>USE SYNTHETIC OR AUTHORIZED SECURITY LOGS</span></div>',
     unsafe_allow_html=True,
 )
