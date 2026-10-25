@@ -1,0 +1,28 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.DS_Store
+
+# Python caches and environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Local backup copies
+*.backup.py
+*.pre_timestamp_fix.py
+README.backup.md
+.gitignore.backup

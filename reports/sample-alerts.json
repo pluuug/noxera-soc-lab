@@ -1,0 +1,55 @@
+{
+  "tool": "N\u00d8XERA SOC Lab - Authentication Log Analyzer",
+  "generated_at_utc": "2026-10-25T17:57:53.379000+00:00",
+  "input_event_count": 8,
+  "threshold": 5,
+  "failed_attempts_by_ip": {
+    "198.51.100.17": 1,
+    "203.0.113.42": 5
+  },
+  "alerts": [
+    {
+      "rule_id": "NX-SOC-001",
+      "title": "Repeated SSH authentication failures",
+      "severity": "medium",
+      "source_ip": "203.0.113.42",
+      "failed_attempts": 5,
+      "targeted_users": [
+        "admin",
+        "deploy",
+        "root",
+        "test"
+      ],
+      "mitre_attack": [
+        "T1110 - Brute Force"
+      ],
+      "evidence": "Source IP reached the configured failed-login threshold.",
+      "recommended_triage": [
+        "Confirm the source IP and time window in the original logs.",
+        "Check whether targeted accounts are privileged or valid.",
+        "Review firewall, VPN, and endpoint logs for related activity.",
+        "Escalate according to the organization's incident-response process."
+      ]
+    },
+    {
+      "rule_id": "NX-SOC-002",
+      "title": "Successful SSH login from an IP with repeated failures",
+      "severity": "high",
+      "source_ip": "203.0.113.42",
+      "account": "deploy",
+      "timestamp": "Oct 24 09:14:18",
+      "evidence": "The same source IP had repeated failures and at least one successful login in this input file.",
+      "mitre_attack": [
+        "T1110 - Brute Force",
+        "T1078 - Valid Accounts (investigate; not confirmed)"
+      ],
+      "recommended_triage": [
+        "Verify the login with the account owner and check whether it was expected.",
+        "Review surrounding authentication and endpoint events.",
+        "Check for privilege changes, new keys, and unusual follow-on activity.",
+        "Escalate and contain only according to approved procedures and evidence."
+      ]
+    }
+  ],
+  "analyst_note": "Alerts are leads for investigation, not proof of compromise."
+}
