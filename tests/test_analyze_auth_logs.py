@@ -22,6 +22,25 @@ class AnalyzerTests(unittest.TestCase):
         result = analyze(logs, threshold=3, window_minutes=10)
         self.assertFalse(any(a["rule_id"] == "NX-SOC-002" for a in result["alerts"]))
 
+    def test_distinct_accounts_trigger_rule_003(self):
+        logs = [
+            line("Oct 24 09:00:00", "Failed password for alice from 203.0.113.20 port 22 ssh2"),
+            line("Oct 24 09:01:00", "Failed password for bob from 203.0.113.20 port 22 ssh2"),
+            line("Oct 24 09:02:00", "Failed password for carol from 203.0.113.20 port 22 ssh2"),
+        ]
+        result = analyze(logs, threshold=3, window_minutes=10)
+        alert = next(a for a in result["alerts"] if a["rule_id"] == "NX-SOC-003")
+        self.assertEqual(alert["distinct_accounts_targeted"], 3)
+        self.assertEqual(alert["targeted_users"], ["alice", "bob", "carol"])
+
+    def test_repeated_failures_for_one_account_do_not_trigger_rule_003(self):
+        logs = [
+            line(f"Oct 24 09:0{i}:00", "Failed password for alice from 203.0.113.20 port 22 ssh2")
+            for i in range(3)
+        ]
+        result = analyze(logs, threshold=3, window_minutes=10)
+        self.assertFalse(any(a["rule_id"] == "NX-SOC-003" for a in result["alerts"]))
+
     def test_failures_outside_window_do_not_trigger_rule_001(self):
         logs = [
             line("Oct 24 09:00:00", "Failed password for root from 203.0.113.10 port 22 ssh2"),

@@ -1,12 +1,12 @@
 {
   "tool": "NØXERA SOC Lab - Authentication Log Analyzer",
-  "generated_at_utc": "2026-10-25T18:36:43.392948+00:00",
-  "input_event_count": 8,
+  "generated_at_utc": "2026-10-25T19:02:08.388489+00:00",
+  "input_event_count": 9,
   "threshold": 5,
   "window_minutes": 10,
   "failed_attempts_by_ip": {
     "198.51.100.17": 1,
-    "203.0.113.42": 5
+    "203.0.113.42": 6
   },
   "alerts": [
     {
@@ -14,20 +14,21 @@
       "title": "Repeated SSH authentication failures",
       "severity": "medium",
       "source_ip": "203.0.113.42",
-      "failed_attempts": 5,
+      "failed_attempts": 6,
       "window_minutes": 10,
       "first_failure": "2026-10-24T09:14:01+00:00",
-      "last_failure": "2026-10-24T09:14:13+00:00",
+      "last_failure": "2026-10-24T09:14:15+00:00",
       "targeted_users": [
         "admin",
         "deploy",
+        "oracle",
         "root",
         "test"
       ],
       "mitre_attack": [
         "T1110 - Brute Force"
       ],
-      "evidence": "5 failed SSH logins from this IP occurred within 10 minutes.",
+      "evidence": "6 failed SSH logins from this IP occurred within 10 minutes.",
       "recommended_triage": [
         "Confirm the source IP and time window in the original logs.",
         "Check whether targeted accounts are privileged or valid.",
@@ -41,10 +42,10 @@
       "severity": "high",
       "source_ip": "203.0.113.42",
       "account": "deploy",
-      "timestamp": "2026-10-24T09:14:18+00:00",
-      "failed_attempts_before_success": 5,
+      "timestamp": "Oct 24 09:14:18",
+      "failed_attempts_before_success": 6,
       "window_minutes": 10,
-      "evidence": "A successful SSH login followed 5 failed login(s) from the same IP within 10 minutes.",
+      "evidence": "A successful SSH login followed 6 failed login(s) from the same IP within 10 minutes.",
       "mitre_attack": [
         "T1110 - Brute Force",
         "T1078 - Valid Accounts (investigate; not confirmed)"
@@ -54,6 +55,35 @@
         "Review surrounding authentication and endpoint events.",
         "Check for privilege changes, new keys, and unusual follow-on activity.",
         "Escalate and contain only according to approved procedures and evidence."
+      ]
+    },
+    {
+      "rule_id": "NX-SOC-003",
+      "title": "Possible SSH password spraying across multiple accounts",
+      "severity": "medium",
+      "source_ip": "203.0.113.42",
+      "distinct_accounts_targeted": 5,
+      "targeted_users": [
+        "admin",
+        "deploy",
+        "oracle",
+        "root",
+        "test"
+      ],
+      "failed_attempts": 6,
+      "minimum_distinct_accounts": 5,
+      "window_minutes": 10,
+      "first_failure": "2026-10-24T09:14:01+00:00",
+      "last_failure": "2026-10-24T09:14:15+00:00",
+      "mitre_attack": [
+        "T1110.003 - Password Spraying"
+      ],
+      "evidence": "Failed SSH logins targeted 5 distinct accounts from one IP within 10 minutes.",
+      "recommended_triage": [
+        "Confirm whether the source IP is expected or belongs to approved infrastructure.",
+        "Review authentication results for each targeted account and related hosts.",
+        "Check for successful logins from the source IP and for activity across other systems.",
+        "Escalate according to the organization's incident-response process; do not block solely on this alert."
       ]
     }
   ],

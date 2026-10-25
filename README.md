@@ -1,147 +1,105 @@
-﻿# NØXERA SOC Lab
+# NØXERA SOC Lab
 
-A defensive cybersecurity portfolio project demonstrating entry-level Security Operations Center (SOC) workflows through authentication log analysis, detection engineering, alert triage, and investigation documentation.
+A beginner-friendly defensive security portfolio project that demonstrates authentication log parsing, detection engineering, alert triage, and incident documentation using Python and synthetic Linux SSH logs.
 
-> \*\*Lab only:\*\* The included authentication logs are synthetic examples. This project does not monitor live systems, scan networks, access accounts, or perform offensive actions.
+> **Safe lab:** The included logs use documentation-only IP addresses and synthetic events. This tool analyzes a local file; it does not scan networks, access accounts, block traffic, or perform offensive actions.
 
-## Project Overview
+![NØXERA SOC Lab analysis flow](docs/noxera-soc-lab-flow.svg)
 
-The analyzer parses Linux-style SSH authentication logs, identifies suspicious authentication patterns, and generates a structured JSON report for analyst review.
+## Features
 
-### Features
+- Parse Linux-style SSH authentication successes and failures.
+- Generate structured JSON alerts with evidence and analyst triage steps.
+- Apply three detection rules to a configurable rolling time window.
+- Run repeatable unit tests with Python's standard library only.
+- Keep sample data and detection logic documented for portfolio review.
 
-* Parses successful and failed SSH authentication events.
-* Detects repeated failed logins within a configurable rolling time window.
-* Detects successful logins following repeated failures from the same source IP.
-* Generates JSON alerts with evidence, severity, timestamps, and recommended triage steps.
-* Maps detections to relevant MITRE ATT\&CK techniques.
-* Includes automated unit tests for core detection logic.
+## Detection rules
 
-## Detection Rules
+| Rule | Detection | Default severity | MITRE ATT&CK |
+|---|---|---|---|
+| NX-SOC-001 | Repeated SSH authentication failures from one IP in a rolling window | Medium | T1110 — Brute Force |
+| NX-SOC-002 | Successful SSH login after repeated failures from the same IP | High | T1110 — Brute Force; T1078 — Valid Accounts (investigate, not confirmed) |
+| NX-SOC-003 | Failed SSH attempts targeting multiple distinct accounts from one IP | Medium | T1110.003 — Password Spraying |
 
-|Rule ID|Detection|Default severity|
-|-|-|-|
-|NX-SOC-001|Repeated SSH authentication failures from one source IP within the configured window|Medium|
-|NX-SOC-002|Successful SSH login following repeated failures from the same IP within the configured window|High|
-
-Severity indicates investigation priority, not confirmed compromise. Both detections require analyst review and supporting evidence.
+These rules produce investigation leads, not proof that an account or system is compromised.
 
 ## Requirements
 
-* Python 3.10 or later
-* No third-party Python packages required
+- Python 3.10 or newer
+- No third-party dependencies
 
-## Run the Analyzer
+## Run the analyzer
 
-From the project root:
+From the repository root:
 
-```powershell
-python src/analyze\_auth\_logs.py --input data/auth.log --output reports/alerts.json --threshold 5 --window-minutes 10
+```bash
+python src/analyze_auth_logs.py --input data/auth.log --output reports/alerts.json --threshold 5 --window-minutes 10
 ```
 
-The options configure:
+On Windows, if `python` is not on PATH, use your installed Python executable or the Python launcher available on your machine.
 
-* `--input`: Path to the authentication log file.
-* `--output`: Destination for the JSON report.
-* `--threshold`: Number of failed logins required to trigger a detection.
-* `--window-minutes`: Rolling time window used by the detection rules.
+The command prints the number of parsed events and alerts, then writes the JSON report to `reports/alerts.json`.
 
-If `python` is unavailable in your Windows terminal, use your installed Python executable or configure Python on your PATH.
+## Run tests
 
-### Expected sample result
-
-With the included sample dataset and default values above, the analyzer processes 8 authentication events and generates 2 alerts.
-
-The generated report is saved to `reports/alerts.json`.
-
-## Run the Tests
-
-From the project root:
-
-```powershell
+```bash
 python -m unittest discover -s tests -v
 ```
 
-The current test suite covers:
+The tests cover positive and negative cases for the detection rules, including events outside the rolling window and repeated failures against only one account.
 
-1. Repeated failures within the window trigger NX-SOC-001.
-2. Failures outside the window do not trigger NX-SOC-001.
-3. A successful login after repeated failures triggers NX-SOC-002.
-4. A successful login before the failures does not trigger NX-SOC-002.
+## Example analyst workflow
 
-## Analyst Investigation Workflow
+1. **Validate:** Confirm the time range, source IP, and event counts in the original logs.
+2. **Scope:** Identify targeted accounts and any affected hosts.
+3. **Correlate:** Look for successful logins after failures and related events across other log sources.
+4. **Assess:** Consider account privilege, business context, and whether activity is expected.
+5. **Respond:** Follow approved incident-response procedures; avoid containment actions based on a single heuristic alone.
+6. **Document:** Record evidence, confidence, impact, and next steps using `reports/incident-report-template.md`.
 
-1. **Validate the alert:** Review the source IP, timestamps, threshold, and evidence.
-2. **Establish scope:** Identify the accounts and authentication events involved.
-3. **Correlate events:** Check whether a successful login followed repeated failures.
-4. **Assess severity:** Consider account privileges, expected activity, and additional evidence.
-5. **Investigate further:** Review relevant endpoint, firewall, VPN, and authentication records where available.
-6. **Recommend response:** Follow the organization's incident-response process; do not assume compromise from this alert alone.
-7. **Document findings:** Record evidence, confidence, impact, and recommended next steps.
-
-## MITRE ATT\&CK References
-
-* **T1110 — Brute Force:** Relevant to repeated authentication failures.
-* **T1078 — Valid Accounts:** A potential investigation lead when a successful login follows repeated failures; this detection alone does not establish account compromise.
-
-## Limitations
-
-* The included dataset is synthetic and intentionally small.
-* The analyzer processes a supplied file; it is not a live SIEM or endpoint monitoring agent.
-* Traditional syslog timestamps may omit the year. The current parser assigns the current UTC year, which can misdate historical logs.
-* Source IP addresses in the sample use documentation-reserved ranges and do not identify real attackers.
-* Thresholds and severity should be tuned to the environment.
-* Alerts are investigative leads, not proof of malicious activity.
-
-## Project Structure
+## Project structure
 
 ```text
 noxera-soc-lab/
-├── data/
-│   └── auth.log
-├── detections/
-├── reports/
-│   └── alerts.json
-├── src/
-│   └── analyze\_auth\_logs.py
-├── tests/
-│   └── test\_analyze\_auth\_logs.py
+├── data/                 # Synthetic authentication log
+├── detections/           # Detection-rule documentation
+├── reports/              # Example JSON alerts and incident template
+├── src/                  # Python analyzer
+├── tests/                # Unit tests
+├── docs/                 # Demo walkthrough
 └── README.md
 ```
 
-## Skills Demonstrated
+## Limitations
 
-Python · Authentication Log Analysis · Detection Engineering · Time-Window Correlation · JSON Reporting · Alert Triage · MITRE ATT\&CK · Unit Testing · Technical Documentation
+- This is a learning project, not a production SIEM or an endpoint protection product.
+- It analyzes the supplied file only; it does not continuously monitor a host or ingest a live log stream.
+- Traditional syslog timestamps omit the year; the current implementation assigns the current UTC year. Historical logs around year boundaries require better timestamp handling.
+- Detection thresholds must be tuned for the environment, and alerts require human validation.
+
+## Git identity setup
+
+When contributing from your own computer, configure Git with your own identity (replace the examples):
+
+```powershell
+git config --global user.name "Your Name"
+git config --global user.email "your-email@example.com"
+```
+
+These values label your commits; they do not authenticate you to GitHub. Your name and email may appear in commit history, so consider using your Git hosting provider's private `noreply` email address.
+
+## Skills demonstrated
+
+Python scripting · Authentication log analysis · Detection engineering · JSON reporting · Unit testing · Alert triage · Incident documentation · MITRE ATT&CK mapping · Git/GitHub
 
 ## Roadmap
 
-* \[x] Synthetic authentication log dataset
-* \[x] Python detection engine
-* \[x] JSON alert reporting
-* \[x] Time-window-based detection rules
-* \[x] Four unit tests for core detection scenarios
-* \[x] Investigation recommendations and ATT\&CK references
-* \[ ] Add malformed-input and edge-case tests
-* \[ ] Improve handling of historical syslog timestamps
-* \[ ] Add a Windows Event Log sample parser
-* \[ ] Build a small alert dashboard
-* \[ ] Expand synthetic test scenarios
-
-* \## Git Configuration
-* 
-* Configure Git with your own name and email before making commits. Replace the example values with your details:
-* 
-* ```powershell
-* git config --global user.name "Your Name"
-* git config --global user.email "your-email@example.com"
-* ```
-* 
-* Verify your settings:
-* 
-* ```powershell
-* git config --global user.name
-* git config --global user.email
-* ```
-* 
-* \*\*Privacy:\*\* Your name and email may appear in commit history. Consider using your GitHub-provided `noreply` email address to protect your personal email.
-
+- [x] Synthetic SSH authentication dataset
+- [x] Three documented detection rules
+- [x] JSON alert reporting
+- [x] Unit tests for detection behavior
+- [ ] Add Windows Event Log parsing
+- [ ] Add more synthetic scenarios and regression tests
+- [ ] Add a small local dashboard
+- [ ] Improve timestamp handling for historical logs and year boundaries

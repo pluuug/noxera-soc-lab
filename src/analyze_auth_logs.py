@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """Analyze synthetic Linux SSH authentication logs for basic SOC detections."""
 from __future__ import annotations
 import argparse, json, re
@@ -76,7 +76,7 @@ def analyze(lines: list[str], threshold: int, window_minutes: int = 10) -> dict:
         alerts.append({
             "rule_id": "NX-SOC-002", "title": "Successful SSH login after repeated failures",
             "severity": "high", "source_ip": success["source_ip"], "account": success["user"],
-            "timestamp": success["_dt"].isoformat(), "failed_attempts_before_success": len(prior),
+            "timestamp": success["timestamp"], "failed_attempts_before_success": len(prior),
             "window_minutes": window_minutes,
             "evidence": f"A successful SSH login followed {len(prior)} failed login(s) from the same IP within {window_minutes} minutes.",
             "mitre_attack": ["T1110 - Brute Force", "T1078 - Valid Accounts (investigate; not confirmed)"],
@@ -86,6 +86,45 @@ def analyze(lines: list[str], threshold: int, window_minutes: int = 10) -> dict:
                 "Check for privilege changes, new keys, and unusual follow-on activity.",
                 "Escalate and contain only according to approved procedures and evidence."
             ]})
+
+    # NX-SOC-003: possible password spraying across distinct accounts.
+    # Use a rolling window and count distinct usernames, not raw attempts.
+    spray_min_accounts = max(3, threshold)
+    for ip, items in sorted(failures_by_ip.items()):
+        ordered = sorted(items, key=lambda e: e["_dt"])
+        left = 0
+        best_window = []
+        best_users = set()
+        for right, current in enumerate(ordered):
+            while left <= right and current["_dt"] - ordered[left]["_dt"] > window:
+                left += 1
+            candidate = ordered[left:right + 1]
+            users = {event["user"] for event in candidate}
+            if len(users) > len(best_users) or (len(users) == len(best_users) and len(candidate) > len(best_window)):
+                best_window = candidate
+                best_users = users
+        if len(best_users) >= spray_min_accounts:
+            alerts.append({
+                "rule_id": "NX-SOC-003",
+                "title": "Possible SSH password spraying across multiple accounts",
+                "severity": "medium",
+                "source_ip": ip,
+                "distinct_accounts_targeted": len(best_users),
+                "targeted_users": sorted(best_users),
+                "failed_attempts": len(best_window),
+                "minimum_distinct_accounts": spray_min_accounts,
+                "window_minutes": window_minutes,
+                "first_failure": min(e["_dt"] for e in best_window).isoformat(),
+                "last_failure": max(e["_dt"] for e in best_window).isoformat(),
+                "mitre_attack": ["T1110.003 - Password Spraying"],
+                "evidence": f"Failed SSH logins targeted {len(best_users)} distinct accounts from one IP within {window_minutes} minutes.",
+                "recommended_triage": [
+                    "Confirm whether the source IP is expected or belongs to approved infrastructure.",
+                    "Review authentication results for each targeted account and related hosts.",
+                    "Check for successful logins from the source IP and for activity across other systems.",
+                    "Escalate according to the organization's incident-response process; do not block solely on this alert."
+                ]
+            })
 
     return {
         "tool": "NØXERA SOC Lab - Authentication Log Analyzer",

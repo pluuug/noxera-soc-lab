@@ -3,6 +3,7 @@ Oct 24 09:14:04 lab-host sshd[1202]: Failed password for root from 203.0.113.42 
 Oct 24 09:14:07 lab-host sshd[1203]: Failed password for admin from 203.0.113.42 port 51003 ssh2
 Oct 24 09:14:10 lab-host sshd[1204]: Failed password for test from 203.0.113.42 port 51004 ssh2
 Oct 24 09:14:13 lab-host sshd[1205]: Failed password for deploy from 203.0.113.42 port 51005 ssh2
+Oct 24 09:14:15 lab-host sshd[1207]: Failed password for oracle from 203.0.113.42 port 51007 ssh2
 Oct 24 09:14:18 lab-host sshd[1206]: Accepted publickey for deploy from 203.0.113.42 port 51006 ssh2
 Oct 24 09:17:22 lab-host sshd[1210]: Failed password for guest from 198.51.100.17 port 52001 ssh2
 Oct 24 09:18:01 lab-host sshd[1211]: Accepted publickey for analyst from 192.0.2.55 port 52002 ssh2
